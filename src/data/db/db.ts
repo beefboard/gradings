@@ -19,7 +19,7 @@ function convertUuid(id: string) {
 async function generateRatingsTable() {
   if (!await db.schema.hasTable(TABLE_RATINGS)) {
     await db.schema.createTable(TABLE_RATINGS, (table) => {
-      table.binary('postId').notNullable();
+      table.integer('postId').notNullable();
       table.string('user').notNullable();
       table.binary('vote').notNullable();
       table.primary(['postId', 'user']);
