@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "lint": "tslint --project .",
     "build": "tsc --sourceMap true",
     "test-watch": "jest --watch",
     "start": "ts-node -T src/server.ts"

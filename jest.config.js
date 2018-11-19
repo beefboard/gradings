@@ -14,6 +14,7 @@ module.exports = {
     "json",
     "node"
   ],
+  "resetMocks": true,
   "verbose": true,
   "collectCoverage": true,
   "coverageThreshold": {

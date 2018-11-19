@@ -1,11 +1,11 @@
 import * as db from './db/db';
 import isUuid from 'is-uuid';
 
-export interface RatingsMap {
-  [postId: string]: number;
+export interface Ratings {
+  [postId: string]: any;
 }
 
-export async function vote(postId: string, username: string, vote: number) {
+export async function grade(postId: string, username: string, vote: number) {
   if (!isUuid.anyNonNil(postId)) {
     return;
   }
@@ -15,19 +15,29 @@ export async function vote(postId: string, username: string, vote: number) {
   await db.addRating(postId, username, normalisedVote);
 }
 
-export async function get(postIds: string[]): Promise<RatingsMap> {
-  const ratings = await Promise.all(postIds.map((postId: string) => db.getRating(postId)));
-  const ratingsMap: RatingsMap = {};
+export async function get(postIds: string[], username?: string): Promise<Ratings> {
+  const tasks = [];
+  tasks.push(Promise.all(postIds.map((postId: string) => db.getRating(postId))));
+
+  if (username) {
+    tasks.push(db.getUserRatings(username, postIds));
+  } else {
+    tasks.push(null);
+  }
+  const [ratings, userVotes] = await Promise.all(tasks);
+
+  const ratingsMap: Ratings = {};
 
   for (let i = 0; i < postIds.length; i += 1) {
-    ratingsMap[postIds[i]] = ratings[i];
+    const post = postIds[i];
+    ratingsMap[post] = { grade: ratings[i] };
+
+    if (username) {
+      ratingsMap[post][username] =  userVotes[post];
+    }
   }
 
   return ratingsMap;
-}
-
-export async function getUserVotes(username: string, postIds: string[]) {
-  return await db.getUserRatings(username, postIds);
 }
 
 export async function clear() {
