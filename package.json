@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "build": "tsc --sourceMap true",
     "test-watch": "jest --watch",
     "start": "ts-node -T src/server.ts"
   },
@@ -40,6 +41,7 @@
     "knex": "^0.15.2",
     "morgan": "^1.9.1",
     "pg": "^7.6.1",
+    "source-map-support": "^0.5.9",
     "sqlite3": "^4.0.4",
     "uuid-parse": "^1.0.0"
   },
