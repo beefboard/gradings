@@ -1,5 +1,0 @@
-describe('gradings', () => {
-  describe('rate', () => {
-
-  });
-});
