@@ -17,7 +17,7 @@ export async function grade(postId: string, username: string, vote: number) {
 
 export async function get(postIds: string[], username?: string): Promise<Ratings> {
   const tasks = [];
-  tasks.push(Promise.all(postIds.map((postId: string) => db.getRating(postId))));
+  tasks.push(db.getRatings(postIds));
 
   if (username) {
     tasks.push(db.getUserRatings(username, postIds));
@@ -28,12 +28,11 @@ export async function get(postIds: string[], username?: string): Promise<Ratings
 
   const ratingsMap: Ratings = {};
 
-  for (let i = 0; i < postIds.length; i += 1) {
-    const post = postIds[i];
-    ratingsMap[post] = { grade: ratings[i] };
+  for (const postId of postIds) {
+    ratingsMap[postId] = { grade: ratings[postId] };
 
     if (username) {
-      ratingsMap[post][username] =  userVotes[post];
+      ratingsMap[postId][username] =  userVotes[postId];
     }
   }
 
