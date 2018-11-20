@@ -30,6 +30,15 @@ describe('ratings', () => {
       expect(votes[postId].grade).toBe(-1);
     });
 
+    it('should allow vote to be set to 0', async () => {
+      const postId = uuid.v1();
+      await ratings.grade(postId, 'username', -1);
+      await ratings.grade(postId, 'username', 0);
+
+      const votes = await ratings.get([postId]);
+      expect(votes[postId].grade).toBe(0);
+    });
+
     it('should normalise values to 1 point', async () => {
       const postId = uuid.v1();
       await ratings.grade(postId, 'username', 34);
