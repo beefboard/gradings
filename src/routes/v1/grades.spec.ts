@@ -150,7 +150,7 @@ describe('/v1/grades', () => {
 
       const response = await supertest(app).post(`/v1/grades/${post}`).send({
         user: user,
-        vote: -1
+        grade: -1
       });
 
       expect(ratings.grade).toHaveBeenCalledWith(post, user, -1);
@@ -190,7 +190,7 @@ describe('/v1/grades', () => {
 
       const response = await supertest(app).post('/v1/grades/sadasd').send({
         user: 'asdasd',
-        vote: -1
+        grade: -1
       });
 
       expect(response.status).toBe(500);
