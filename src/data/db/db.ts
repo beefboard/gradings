@@ -1,6 +1,9 @@
 import knex from 'knex';
 import uuidParse from 'uuid-parse';
 
+// Fix PG parsing ints as strings
+require('pg').defaults.parseInt8 = true;
+
 export const TABLE_RATINGS = 'ratings';
 
 const pgConnectionConfig = {
