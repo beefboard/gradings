@@ -125,8 +125,8 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'auser');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: -1, auser: -1 },
-        [postId2]: { grade: 1, auser: 1 }
+        [postId]: { grade: -1, user: -1 },
+        [postId2]: { grade: 1, user: 1 }
       });
     });
 
@@ -141,15 +141,15 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'username');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: 0, username: -1 },
-        [postId2]: { grade: 0, username: 1 }
+        [postId]: { grade: 0, user: -1 },
+        [postId2]: { grade: 0, user: 1 }
       });
 
       const userVotes2 = await ratings.get([postId, postId2], 'username2');
 
       expect(userVotes2).toEqual({
-        [postId]: { grade: 0, username2: 1 },
-        [postId2]: { grade: 0, username2: -1 }
+        [postId]: { grade: 0, user: 1 },
+        [postId2]: { grade: 0, user: -1 }
       });
     });
 
@@ -159,8 +159,8 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'username');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: 0, username: 0 },
-        [postId2]: { grade: 0, username: 0 }
+        [postId]: { grade: 0, user: 0 },
+        [postId2]: { grade: 0, user: 0 }
       });
     });
   });
