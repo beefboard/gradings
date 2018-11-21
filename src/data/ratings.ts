@@ -1,8 +1,13 @@
 import * as db from './db/db';
 import isUuid from 'is-uuid';
 
-export interface Ratings {
-  [postId: string]: any;
+export interface Rating {
+  grade: number;
+  user?: number;
+}
+
+export interface RatingsMap {
+  [postId: string]: Rating;
 }
 
 export async function grade(postId: string, username: string, vote: number) {
@@ -20,7 +25,7 @@ export async function grade(postId: string, username: string, vote: number) {
   await db.addRating(postId, username, normalisedVote);
 }
 
-export async function get(postIds: string[], username?: string): Promise<Ratings> {
+export async function get(postIds: string[], username?: string): Promise<RatingsMap> {
   const tasks = [];
   tasks.push(db.getRatings(postIds));
 
@@ -31,13 +36,13 @@ export async function get(postIds: string[], username?: string): Promise<Ratings
   }
   const [ratings, userVotes] = await Promise.all(tasks);
 
-  const ratingsMap: Ratings = {};
+  const ratingsMap: RatingsMap = {};
 
   for (const postId of postIds) {
     ratingsMap[postId] = { grade: ratings[postId] };
 
     if (username) {
-      ratingsMap[postId][username] =  userVotes[postId];
+      ratingsMap[postId].user =  userVotes[postId];
     }
   }
 

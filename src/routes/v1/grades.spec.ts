@@ -39,8 +39,8 @@ describe('/v1/grades', () => {
 
       ratings.get.mockImplementation(() => {
         return {
-          sadfasdf: { grade: 6, [user]: 0 },
-          sadfsadfdf: { grade: 4, [user]: 1 }
+          sadfasdf: { grade: 6, user: 0 },
+          sadfsadfdf: { grade: 4, user: 1 }
         };
       });
 
@@ -55,8 +55,8 @@ describe('/v1/grades', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        sadfasdf: { grade: 6, [user]: 0 },
-        sadfsadfdf: { grade: 4, [user]: 1 }
+        sadfasdf: { grade: 6, user: 0 },
+        sadfsadfdf: { grade: 4, user: 1 }
       });
     });
 
