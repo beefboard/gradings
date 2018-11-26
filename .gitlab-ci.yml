@@ -38,7 +38,7 @@ stage:
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - apk --update add nodejs
+    - apk --update add nodejs nodejs-npm
     - npm install
     - docker version
     - "docker info"
