@@ -5,15 +5,14 @@ stages:
   - stage
   - deploy
 
+before_script:
+  - npm install
+
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
 cache:
   paths:
   - node_modules/
-  
-
-before_script:
-  - npm install
 
 test:
   stage: test
@@ -30,14 +29,19 @@ lint:
 
 stage:
   stage: stage
+  image: docker:latest
   only:
     - development
     - master
   services:
     - docker:dind
+    - node
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
+    - apt-get update
+    - apt-get install curl
+    - curl -sL https://deb.nodesource.com/setup_10.x | bash
     - docker version
     - "docker info"
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
