@@ -35,13 +35,11 @@ stage:
     - master
   services:
     - docker:dind
-    - node
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - apt-get update
-    - apt-get install curl
-    - curl -sL https://deb.nodesource.com/setup_10.x | bash
+    - apk --update add nodejs
+    - npm install
     - docker version
     - "docker info"
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
