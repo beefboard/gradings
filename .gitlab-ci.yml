@@ -49,6 +49,7 @@ stage:
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
     - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
+    - "docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} gradings:test"
     - "npm run acceptence"
     - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMsMIT_REF_NAME}"
   after_script:
