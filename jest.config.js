@@ -24,5 +24,11 @@ module.exports = {
       "lines": 100,
       "statements": 0
     }
-  }
+  },
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/server.ts",
+    "!**/node_modules/**",
+    "!**/coverage/**",
+  ]
 }

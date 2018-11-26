@@ -1,0 +1,25 @@
+version: "3.5"
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_PASSWORD: example
+  
+  gradings:
+    image: gradings:development
+    restart: always
+    depends_on:
+      - "db"
+    environment:
+      PG_HOST: db
+      PORT: 2737
+    ports:
+      - 2737:2737
+
+    
+    
+
+  
+  

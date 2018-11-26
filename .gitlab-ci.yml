@@ -2,7 +2,7 @@ image: node:10
 
 stages:
   - test
-  - build
+  - stage
   - deploy
 
 # This folder is cached between builds
@@ -11,18 +11,24 @@ cache:
   paths:
   - node_modules/
 
+before_script:
+  - npm install
+
 test:
   stage: test
   script:
-   - npm install
-   - npm run lint
    - npm test
   artifacts:
     paths:
       - coverage/
   
-build:
-  stage: build
+lint:
+  stage: test
+  script:
+    - npm run lint
+
+stage:
+  stage: stage
   image: docker:latest
   only:
     - development
@@ -37,9 +43,48 @@ build:
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
     - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
+    - "npm run acceptence"
     - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}"
   after_script:
     - "docker logout ${CI_REGISTRY}"
+
+deploy:
+  stage: deploy
+  dependencies:
+    - test
+  script:
+    ##
+    ## Install ssh-agent if not already installed, it is required by Docker.
+    ## (change apt-get to yum if you use an RPM-based image)
+    ##
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+    ##
+    ## Run ssh-agent (inside the build environment)
+    ##
+    - eval $(ssh-agent -s)
+
+    ##
+    ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    ## We're using tr to fix line endings which makes ed25519 keys work
+    ## without extra base64 encoding.
+    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+    ##
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+    ##
+    ## Create the SSH directory and give it the right permissions
+    ##
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    # Ensure that the ssh is known
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'docker stack deploy -c /opt/web/docker-compose.yml web --with-registry-auth'
+  only:
+    - master
+    - development
 
 publish-coverage:
   stage: deploy

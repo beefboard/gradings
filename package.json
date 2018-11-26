@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "acceptence": "jest --config jest.acceptence.config.js acceptence.spec.ts",
     "lint": "tslint --project .",
     "build": "tsc --sourceMap true",
     "test-watch": "jest --watch",
@@ -23,6 +24,7 @@
     "@types/supertest": "^2.0.6",
     "@types/uuid": "^3.4.4",
     "@types/uuid-parse": "^1.0.0",
+    "frisby": "^2.1.0",
     "husky": "^1.1.4",
     "jest": "^23.6.0",
     "lint-staged": "^8.0.5",
