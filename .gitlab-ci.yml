@@ -14,6 +14,7 @@ cache:
   paths:
   - node_modules/
 
+# Run unit tests
 test:
   stage: test
   script:
@@ -22,11 +23,13 @@ test:
     paths:
       - coverage/
   
+# Run linter
 lint:
   stage: test
   script:
     - npm run lint
 
+# Build docker image and run acceptance tests
 stage:
   stage: stage
   image: docker:latest
@@ -38,7 +41,7 @@ stage:
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - apk --update add nodejs nodejs-npm
+    - apk --update add nodejs nodejs-npm docker-compose
     - npm install
     - docker version
     - "docker info"
@@ -50,10 +53,11 @@ stage:
   after_script:
     - "docker logout ${CI_REGISTRY}"
 
+# Deploy the image on beefboard
 deploy:
   stage: deploy
   dependencies:
-    - test
+    - stage
   script:
     ##
     ## Install ssh-agent if not already installed, it is required by Docker.
