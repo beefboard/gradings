@@ -10,6 +10,7 @@ stages:
 cache:
   paths:
   - node_modules/
+  
 
 before_script:
   - npm install
@@ -29,7 +30,6 @@ lint:
 
 stage:
   stage: stage
-  image: docker:latest
   only:
     - development
     - master
