@@ -92,7 +92,9 @@ deploy:
     - ssh-keyscan $BEEFBOARD_HOST >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     
-    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'docker service update web_beefboard-votes --image ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --with-registry-auth'
+    - command="docker service update web_beefboard-votes --image ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --with-registry-auth"
+    - echo $command
+    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'command'
   only:
     - master
     - development
