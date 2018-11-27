@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: example
   
   gradings:
-    image: gradings:test
+    image: gradings:testing
     restart: always
     depends_on:
       - "db"

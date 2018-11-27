@@ -5,11 +5,30 @@ const HOST = 'http://localhost:2737';
 
 jest.setTimeout(20000);
 
-beforeAll((done) => {
+beforeAll(async () => {
   execSync('docker-compose -f docker-compose.acceptence.yml up -d');
 
+  const start = new Date().getTime();
+
   // Wait for server to be up
-  setTimeout(done, 10000);
+  while (true) {
+    try {
+      const response = await supertest(HOST).get('/');
+
+      if (response.status === 200) {
+        break;
+      }
+    } catch (e) {}
+
+    // Ignore if it takes this long to start
+    if ((new Date().getTime() - start) > 60000) {
+      break;
+    }
+
+    await new Promise((resolve) => {
+      return setTimeout(resolve, 200);
+    });
+  }
 });
 
 afterAll(() => {
@@ -19,7 +38,7 @@ afterAll(() => {
 });
 
 describe('acceptence', () => {
-  it('responds on port', async () => {
+  it('responds', async () => {
     const response = await supertest(HOST).get('/');
     expect(response.status).toBe(200);
   });
