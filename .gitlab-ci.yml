@@ -32,7 +32,7 @@ lint:
 # Build docker image and run acceptance tests
 stage:
   stage: stage
-  image: docker:latest
+  image: tmaier/docker-compose:latest
   only:
     - development
     - master
@@ -41,8 +41,7 @@ stage:
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - apk --update --no-cache add nodejs nodejs-npm py-pip
-    - pip install docker-compose
+    - apk --update --no-cache add nodejs nodejs-npm
     - npm install
     - docker version
     - "docker info"
