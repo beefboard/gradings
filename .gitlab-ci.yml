@@ -2,7 +2,7 @@ image: node:10
 
 stages:
   - test
-  - stage
+  - staging
   - deploy
 
 before_script:
@@ -31,7 +31,7 @@ lint:
 
 # Build docker image and run acceptance tests
 stage:
-  stage: stage
+  stage: staging
   image: tmaier/docker-compose:latest
   only:
     - development
@@ -41,8 +41,6 @@ stage:
     - node:10
   variables:
     DOCKER_DRIVER: "overlay"
-  environment:
-    DOCKER_HOST: http://docker:2737
   before_script:
     - npm install
     - docker version
@@ -51,6 +49,7 @@ stage:
   script:
     - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
     - "docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} gradings:development"
+    - "export DOCKER_HOST=http://docker:2737"
     - "npm run acceptence"
     - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMsMIT_REF_NAME}"
   after_script:
