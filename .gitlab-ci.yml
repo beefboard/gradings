@@ -41,17 +41,19 @@ stage:
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - apk --update --no-cache add nodejs nodejs-npm
-    - npm install
-    - docker version
+    - "apk --update --no-cache add nodejs nodejs-npm"
+    - "npm install"
+    - "docker version"
     - "docker info"
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
     - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
     - "docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} gradings:development"
+    
     - "export ACCEPTENCE_SERVER=http://docker:2737"
     - "npm run acceptence"
-    - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMsMIT_REF_NAME}"
+
+    - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}"
   after_script:
     - "docker logout ${CI_REGISTRY}"
 
@@ -89,7 +91,7 @@ deploy:
     # Ensure that the ssh is known
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'docker stack deploy -c /opt/web/docker-compose.yml web --with-registry-auth'
+    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'docker service update web_beefboard-votes --image ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --with-registry-auth'
   only:
     - master
     - development
