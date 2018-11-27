@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 import { execSync } from 'child_process';
 
-const HOST = 'http://localhost:2737';
+const HOST = process.env.DOCKER_HOST || 'http://localhost:2737';
 
 jest.setTimeout(60000);
 

@@ -38,10 +38,12 @@ stage:
     - master
   services:
     - docker:dind
+    - node:10
   variables:
     DOCKER_DRIVER: "overlay"
+  environment:
+    DOCKER_HOST: http://docker:2737
   before_script:
-    - apk --update --no-cache add nodejs nodejs-npm
     - npm install
     - docker version
     - "docker info"
