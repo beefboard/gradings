@@ -3,12 +3,10 @@ import { execSync } from 'child_process';
 
 const HOST = 'http://localhost:2737';
 
-jest.setTimeout(20000);
+jest.setTimeout(60000);
 
 beforeAll(async () => {
   execSync('docker-compose -f docker-compose.acceptence.yml up -d');
-
-  const start = new Date().getTime();
 
   // Wait for server to be up
   while (true) {
@@ -19,11 +17,6 @@ beforeAll(async () => {
         break;
       }
     } catch (e) {}
-
-    // Ignore if it takes this long to start
-    if ((new Date().getTime() - start) > 60000) {
-      break;
-    }
 
     await new Promise((resolve) => {
       return setTimeout(resolve, 200);
