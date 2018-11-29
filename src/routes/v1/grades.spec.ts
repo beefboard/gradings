@@ -143,12 +143,12 @@ describe('/v1/grades', () => {
     });
   });
 
-  describe('POST /:postId', () => {
+  describe('PUT /:postId', () => {
     it('should vote on the given post id with the given vote for the given user', async () => {
       const post = 'oijdsfasdf';
       const user = 'jasdhfkjsd';
 
-      const response = await supertest(app).post(`/v1/grades/${post}`).send({
+      const response = await supertest(app).put(`/v1/grades/${post}`).send({
         user: user,
         grade: -1
       });
@@ -162,7 +162,7 @@ describe('/v1/grades', () => {
     });
 
     it('should respond 422 when user not given', async () => {
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         vote: -1
       });
 
@@ -173,7 +173,7 @@ describe('/v1/grades', () => {
     });
 
     it('should respond with 422 when vote not given', async () => {
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         user: 'asdasd'
       });
 
@@ -188,7 +188,7 @@ describe('/v1/grades', () => {
         throw new Error('Another error');
       });
 
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         user: 'asdasd',
         grade: -1
       });

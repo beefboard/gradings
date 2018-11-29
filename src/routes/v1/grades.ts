@@ -38,7 +38,7 @@ router.get('/:postId', async (req, res) => {
   }
 });
 
-router.post('/:postId', async (req, res) => {
+router.put('/:postId', async (req, res) => {
   const post = req.params.postId;
   const user = req.body.user;
   const grade = req.body.grade;

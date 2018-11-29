@@ -11,6 +11,7 @@ services:
   
   gradings:
     image: gradings:development
+    build: .
     restart: always
     depends_on:
       - "db"
