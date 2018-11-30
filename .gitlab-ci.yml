@@ -95,7 +95,8 @@ deploy:
     - if [[ "$CI_COMMIT_REF_NAME"=="development" ]]; then SERVICE="web_beefboard-test-votes"; else SERVICE="web_beefboard-votes"; fi
     - command="docker service update ${SERVICE} --image ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --with-registry-auth"
     - echo $command
-    - ssh $DEPLOY_USER@$BEEFBOARD_HOST 'command'
+    - ssh $DEPLOY_USER@$BEEFBOARD_HOST "$command"
+    
   only:
     - master
     - development
