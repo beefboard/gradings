@@ -1,7 +1,7 @@
 {
   "name": "gradings",
   "version": "1.0.0",
-  "description": "",
+  "description": "Beefboard's post votes API",
   "main": "index.js",
   "scripts": {
     "test": "jest",
