@@ -2,8 +2,11 @@ image: node:10
 
 stages:
   - test
-  - build
+  - staging
   - deploy
+
+before_script:
+  - npm install
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
@@ -11,19 +14,25 @@ cache:
   paths:
   - node_modules/
 
+# Run unit tests
 test:
   stage: test
   script:
-   - npm install
-   - npm run lint
    - npm test
   artifacts:
     paths:
       - coverage/
   
-build:
-  stage: build
-  image: docker:latest
+# Run linter
+lint:
+  stage: test
+  script:
+    - npm run lint
+
+# Build docker image and run acceptance tests
+stage:
+  stage: staging
+  image: tmaier/docker-compose:latest
   only:
     - development
     - master
@@ -32,19 +41,74 @@ build:
   variables:
     DOCKER_DRIVER: "overlay"
   before_script:
-    - docker version
+    - "apk --update --no-cache add nodejs nodejs-npm"
+    - "npm install"
+    - "docker version"
     - "docker info"
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
     - "docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --pull ."
+    - "docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} gradings:development"
+    
+    - "export ACCEPTENCE_SERVER=http://docker:2737"
+    - "npm run acceptence"
+
     - "docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}"
   after_script:
     - "docker logout ${CI_REGISTRY}"
 
+# Deploy the image on beefboard
+deploy:
+  stage: deploy
+  dependencies:
+    - stage
+  script:
+    ##
+    ## Install ssh-agent if not already installed, it is required by Docker.
+    ## (change apt-get to yum if you use an RPM-based image)
+    ##
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+    ##
+    ## Run ssh-agent (inside the build environment)
+    ##
+    - eval $(ssh-agent -s)
+
+    ##
+    ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    ## We're using tr to fix line endings which makes ed25519 keys work
+    ## without extra base64 encoding.
+    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+    ##
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+    ##
+    ## Create the SSH directory and give it the right permissions
+    ##
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    # Ensure that the ssh is known
+    - ssh-keyscan $BEEFBOARD_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    
+    - if [[ "$CI_COMMIT_REF_NAME"=="development" ]]; then 
+        SERVICE="web_beefboard-test-votes"; 
+      else 
+        SERVICE="web_beefboard-votes"; 
+      fi
+    - command="docker service update ${SERVICE} --image ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} --with-registry-auth"
+    - echo $command
+    - ssh $DEPLOY_USER@$BEEFBOARD_HOST "$command"
+    
+  only:
+    - master
+    - development
+
 publish-coverage:
   stage: deploy
   dependencies:
-    - test
+    - stage
   script:
     - mv coverage/ public/
   artifacts:

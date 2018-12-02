@@ -10,6 +10,7 @@ const port = process.env.PORT || 2737;
     await initDb();
   } catch (e) {
     console.error(`Could not initialise db: ${e}`);
+    process.exit();
   }
 
   app.listen(port, () => {

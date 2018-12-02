@@ -30,6 +30,15 @@ describe('ratings', () => {
       expect(votes[postId].grade).toBe(-1);
     });
 
+    it('should allow vote to be set to 0', async () => {
+      const postId = uuid.v1();
+      await ratings.grade(postId, 'username', -1);
+      await ratings.grade(postId, 'username', 0);
+
+      const votes = await ratings.get([postId]);
+      expect(votes[postId].grade).toBe(0);
+    });
+
     it('should normalise values to 1 point', async () => {
       const postId = uuid.v1();
       await ratings.grade(postId, 'username', 34);
@@ -116,8 +125,8 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'auser');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: -1, auser: -1 },
-        [postId2]: { grade: 1, auser: 1 }
+        [postId]: { grade: -1, user: -1 },
+        [postId2]: { grade: 1, user: 1 }
       });
     });
 
@@ -132,15 +141,15 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'username');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: 0, username: -1 },
-        [postId2]: { grade: 0, username: 1 }
+        [postId]: { grade: 0, user: -1 },
+        [postId2]: { grade: 0, user: 1 }
       });
 
       const userVotes2 = await ratings.get([postId, postId2], 'username2');
 
       expect(userVotes2).toEqual({
-        [postId]: { grade: 0, username2: 1 },
-        [postId2]: { grade: 0, username2: -1 }
+        [postId]: { grade: 0, user: 1 },
+        [postId2]: { grade: 0, user: -1 }
       });
     });
 
@@ -150,8 +159,8 @@ describe('ratings', () => {
       const userVotes = await ratings.get([postId, postId2], 'username');
 
       expect(userVotes).toEqual({
-        [postId]: { grade: 0, username: 0 },
-        [postId2]: { grade: 0, username: 0 }
+        [postId]: { grade: 0, user: 0 },
+        [postId2]: { grade: 0, user: 0 }
       });
     });
   });

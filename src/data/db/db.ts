@@ -1,6 +1,9 @@
 import knex from 'knex';
 import uuidParse from 'uuid-parse';
 
+// Fix PG parsing ints as strings
+require('pg').defaults.parseInt8 = true;
+
 export const TABLE_RATINGS = 'ratings';
 
 const pgConnectionConfig = {
@@ -21,7 +24,7 @@ async function generateRatingsTable() {
     await db.schema.createTable(TABLE_RATINGS, (table) => {
       table.binary('postId').notNullable();
       table.string('user').notNullable();
-      table.binary('vote').notNullable();
+      table.integer('vote').notNullable();
       table.primary(['postId', 'user']);
     });
   }
@@ -69,16 +72,28 @@ export async function addRating(postId: string, username: string, vote: number) 
   }
 }
 
-export async function getRating(postId: string): Promise<number> {
-  const row = await db.sum('vote')
+export async function getRatings(postIds: string[]) {
+  const rows = await db.select('postId').sum('vote')
     .from(TABLE_RATINGS)
-    .where('postId', convertUuid(postId))
-    .first();
-  if (!row || !row['sum(`vote`)']) {
-    return 0;
+    .whereIn('postId', postIds.map((postId: string) => convertUuid(postId)))
+    .groupBy('postId');
+
+  const ratings: any = {};
+
+  // Default rating for a post id is 0
+  postIds.forEach((postId: string) => ratings[postId] = 0);
+
+  if (rows.length > 0) {
+    // SQLite and postgres use different sum column names
+    const sumColumn = Object.keys(rows[0])[1];
+
+    for (const row of rows) {
+      const postId = uuidParse.unparse(row['postId']);
+      ratings[postId] = row[sumColumn];
+    }
   }
 
-  return row['sum(`vote`)'];
+  return ratings;
 }
 
 export async function getUserRatings(username: string, postIds: string[]) {

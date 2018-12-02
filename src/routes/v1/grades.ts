@@ -38,19 +38,19 @@ router.get('/:postId', async (req, res) => {
   }
 });
 
-router.post('/:postId', async (req, res) => {
+router.put('/:postId', async (req, res) => {
   const post = req.params.postId;
   const user = req.body.user;
-  const vote = req.body.vote;
+  const grade = req.body.grade;
 
-  if (!user || !isNumber(vote)) {
+  if (!user || !isNumber(grade)) {
     return res.status(422).send({
       error: 'User and vote must be given'
     });
   }
 
   try {
-    await ratings.grade(post, user, vote);
+    await ratings.grade(post, user, grade);
     res.send({
       success: true
     });

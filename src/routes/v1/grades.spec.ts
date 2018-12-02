@@ -39,8 +39,8 @@ describe('/v1/grades', () => {
 
       ratings.get.mockImplementation(() => {
         return {
-          sadfasdf: { grade: 6, [user]: 0 },
-          sadfsadfdf: { grade: 4, [user]: 1 }
+          sadfasdf: { grade: 6, user: 0 },
+          sadfsadfdf: { grade: 4, user: 1 }
         };
       });
 
@@ -55,8 +55,8 @@ describe('/v1/grades', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        sadfasdf: { grade: 6, [user]: 0 },
-        sadfsadfdf: { grade: 4, [user]: 1 }
+        sadfasdf: { grade: 6, user: 0 },
+        sadfsadfdf: { grade: 4, user: 1 }
       });
     });
 
@@ -143,14 +143,14 @@ describe('/v1/grades', () => {
     });
   });
 
-  describe('POST /:postId', () => {
+  describe('PUT /:postId', () => {
     it('should vote on the given post id with the given vote for the given user', async () => {
       const post = 'oijdsfasdf';
       const user = 'jasdhfkjsd';
 
-      const response = await supertest(app).post(`/v1/grades/${post}`).send({
+      const response = await supertest(app).put(`/v1/grades/${post}`).send({
         user: user,
-        vote: -1
+        grade: -1
       });
 
       expect(ratings.grade).toHaveBeenCalledWith(post, user, -1);
@@ -162,7 +162,7 @@ describe('/v1/grades', () => {
     });
 
     it('should respond 422 when user not given', async () => {
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         vote: -1
       });
 
@@ -173,7 +173,7 @@ describe('/v1/grades', () => {
     });
 
     it('should respond with 422 when vote not given', async () => {
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         user: 'asdasd'
       });
 
@@ -188,9 +188,9 @@ describe('/v1/grades', () => {
         throw new Error('Another error');
       });
 
-      const response = await supertest(app).post('/v1/grades/sadasd').send({
+      const response = await supertest(app).put('/v1/grades/sadasd').send({
         user: 'asdasd',
-        vote: -1
+        grade: -1
       });
 
       expect(response.status).toBe(500);

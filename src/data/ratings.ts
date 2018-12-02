@@ -1,8 +1,13 @@
 import * as db from './db/db';
 import isUuid from 'is-uuid';
 
-export interface Ratings {
-  [postId: string]: any;
+export interface Rating {
+  grade: number;
+  user?: number;
+}
+
+export interface RatingsMap {
+  [postId: string]: Rating;
 }
 
 export async function grade(postId: string, username: string, vote: number) {
@@ -10,14 +15,19 @@ export async function grade(postId: string, username: string, vote: number) {
     return;
   }
 
-  const normalisedVote = vote > 0 ? 1 : -1;
+  let normalisedVote = 0;
+  if (vote > 0) {
+    normalisedVote = 1;
+  } else if (vote < 0) {
+    normalisedVote = -1;
+  }
 
   await db.addRating(postId, username, normalisedVote);
 }
 
-export async function get(postIds: string[], username?: string): Promise<Ratings> {
+export async function get(postIds: string[], username?: string): Promise<RatingsMap> {
   const tasks = [];
-  tasks.push(Promise.all(postIds.map((postId: string) => db.getRating(postId))));
+  tasks.push(db.getRatings(postIds));
 
   if (username) {
     tasks.push(db.getUserRatings(username, postIds));
@@ -26,14 +36,13 @@ export async function get(postIds: string[], username?: string): Promise<Ratings
   }
   const [ratings, userVotes] = await Promise.all(tasks);
 
-  const ratingsMap: Ratings = {};
+  const ratingsMap: RatingsMap = {};
 
-  for (let i = 0; i < postIds.length; i += 1) {
-    const post = postIds[i];
-    ratingsMap[post] = { grade: ratings[i] };
+  for (const postId of postIds) {
+    ratingsMap[postId] = { grade: ratings[postId] };
 
     if (username) {
-      ratingsMap[post][username] =  userVotes[post];
+      ratingsMap[postId].user =  userVotes[postId];
     }
   }
 
