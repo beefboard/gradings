@@ -108,7 +108,7 @@ deploy:
 publish-coverage:
   stage: deploy
   dependencies:
-    - stage
+    - test
   script:
     - mv coverage/ public/
   artifacts:
