@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import * as ratings from '../../data/ratings';
-import { isNumber } from 'util';
+import { isNumber, isObject } from 'util';
 
 const router = Router();
 
@@ -12,12 +12,13 @@ function handleError(e: Error, res: Response) {
 }
 
 router.get('/', async (req, res) => {
-  const posts = req.query.posts;
+  let posts = req.query.posts;
   const user = req.query.user;
 
-  if (!Array.isArray(posts)) {
+  if (!isObject(posts)) {
     return res.status(422).send({ error: 'Posts must be an array' });
   }
+  posts = Object.values(posts);
 
   try {
     res.send(await ratings.get(posts, user));
